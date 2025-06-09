@@ -74,4 +74,33 @@ public class ImageResizer {
             return null;
         }
     }
+
+    public static Image resizeImage(Image originalImage, int targetWidth, int targetHeight) {
+        if (originalImage == null) return null;
+
+        // Calculate the new dimensions while maintaining aspect ratio
+        double aspectRatio = (double) originalImage.getWidth(null) / originalImage.getHeight(null);
+        int newWidth = targetWidth;
+        int newHeight = targetHeight;
+
+        if (aspectRatio > 1) {
+            // Image is wider than tall
+            newHeight = (int) (targetWidth / aspectRatio);
+        } else {
+            // Image is taller than wide
+            newWidth = (int) (targetHeight * aspectRatio);
+        }
+
+        // Create a new buffered image with the calculated dimensions
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        
+        // Draw the original image onto the new buffered image
+        java.awt.Graphics2D g2d = resizedImage.createGraphics();
+        g2d.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, 
+                            java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g2d.dispose();
+
+        return resizedImage;
+    }
 }

@@ -27,21 +27,16 @@ public class ItemCard extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
-
         collectionImage = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
 
         setBackground(new java.awt.Color(232, 235, 242));
-        setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                componentClicked(evt);
-            }
-        });
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setFocusable(false);
+        setRequestFocusEnabled(false);
 
         collectionImage.setText("jLabel1");
 
@@ -60,10 +55,11 @@ public class ItemCard extends javax.swing.JPanel {
         jLabel4.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         jLabel4.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jScrollPane1.setBorder(null);
-
         jTextPane1.setBackground(new java.awt.Color(232, 235, 242));
-        jScrollPane1.setViewportView(jTextPane1);
+        jTextPane1.setEditable(false);
+        jTextPane1.setFocusable(false);
+        jTextPane1.setRequestFocusEnabled(false);
+        jTextPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -80,7 +76,7 @@ public class ItemCard extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel4)
                         .addGap(0, 437, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                    .addComponent(jTextPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -96,7 +92,7 @@ public class ItemCard extends javax.swing.JPanel {
                             .addComponent(jLabel3)
                             .addComponent(jLabel4))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)))
+                        .addComponent(jTextPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)))
                 .addContainerGap())
         );
     }// </editor-fold>                        
@@ -109,22 +105,66 @@ public class ItemCard extends javax.swing.JPanel {
         jLabel2.setText(name);
     }
 
+    private boolean isLoading = false;
+    private boolean hasError = false;
+
+    public void setImageLoading(boolean loading) {
+        this.isLoading = loading;
+        if (loading) {
+            collectionImage.setIcon(null);
+            collectionImage.setText("Loading image...");
+        } else if (!hasError) {
+            collectionImage.setText("No Image");
+        }
+    }
+
+    public void setImageError(boolean error) {
+        this.hasError = error;
+        if (error) {
+            collectionImage.setIcon(null);
+            collectionImage.setText("Failed to load image");
+        }
+    }
+
+    public void setImage(ImageIcon icon) {
+        if (icon != null) {
+            collectionImage.setIcon(icon);
+            collectionImage.setText("");
+        } else {
+            collectionImage.setIcon(null);
+            collectionImage.setText("No Image");
+        }
+    }
+
     public void setItemImage(String url) {
         final int IMAGE_WIDTH = 156;
         final int IMAGE_HEIGHT = 156;
+
+        if (url == null || url.trim().isEmpty()) {
+            // Set a default image or placeholder when URL is null or empty
+            collectionImage.setIcon(null);
+            collectionImage.setText("No Image");
+            return;
+        }
+
+        // Set loading state
+        setImageLoading(true);
 
         try {
             URL imageURL = new URL(url);
             ImageResizer resize = new ImageResizer();
             ImageIcon scaledIcon = resize.toCover(imageURL, IMAGE_WIDTH, IMAGE_HEIGHT);
             collectionImage.setIcon(scaledIcon);
+            collectionImage.setText("");
             if (collectionImage.getParent() != null) {
                 collectionImage.getParent().revalidate();
                 collectionImage.getParent().repaint();
             }
         } catch (MalformedURLException e) {
-            System.err.println("Invalid URL");
-            e.printStackTrace();
+            System.err.println("Invalid URL: " + url);
+            collectionImage.setIcon(null);
+            collectionImage.setText("Invalid Image");
+            setImageError(true);
         }
     }
 
@@ -145,7 +185,6 @@ public class ItemCard extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration                   
 }

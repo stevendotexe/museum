@@ -1,14 +1,15 @@
 package Components.Cards;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchBar extends javax.swing.JPanel {
     // Variables declaration - do not modify                     
     private javax.swing.JTextField searchItem;
     private javax.swing.JLabel searchLabel;
+    private List<ActionListener> searchListeners;
     // End of variables declaration                   
 
     private final ActionListener searchAction = new ActionListener() {
@@ -16,11 +17,24 @@ public class SearchBar extends javax.swing.JPanel {
         public void actionPerformed(ActionEvent evt) {
             String searchText = searchItem.getText();
             System.out.println("Search text: " + searchText);
+            // Notify all listeners
+            for (ActionListener listener : searchListeners) {
+                listener.actionPerformed(evt);
+            }
         }
     };
 
     public SearchBar() {
+        searchListeners = new ArrayList<>();
         initComponents();
+    }
+
+    public void addSearchListener(ActionListener listener) {
+        searchListeners.add(listener);
+    }
+
+    public String getSearchText() {
+        return searchItem.getText();
     }
 
     private void initComponents() {

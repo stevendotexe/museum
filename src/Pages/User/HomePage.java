@@ -6,9 +6,13 @@ import java.awt.*;
 import Components.Utilities.DatabaseConnection;
 import Components.Cards.NavigationBar;
 import Components.Utilities.Item;
-import Components.Cards.Collection.ItemCard;
+import Components.Utilities.ImageResizer;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomePage extends javax.swing.JFrame {
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     public HomePage() {
         initComponents();
@@ -20,39 +24,218 @@ public class HomePage extends javax.swing.JFrame {
         
         // Create main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(255, 255, 255));
         
         // Add NavigationBar at the top
         NavigationBar navigationBar = new NavigationBar();
         mainPanel.add(navigationBar, BorderLayout.NORTH);
         
         // Create center panel
-        JPanel centerPanel = new JPanel(new BorderLayout());
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        centerPanel.setBackground(new Color(255, 255, 255));
         
         // Add museum name label
         jLabel1 = new JLabel("Museum Name");
         jLabel1.setFont(new java.awt.Font("DM Sans", 1, 24));
-        jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-        centerPanel.add(jLabel1, BorderLayout.NORTH);
+        jLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(jLabel1);
+        centerPanel.add(Box.createVerticalStrut(20));
         
-        // Create grid panel for items
-        JPanel gridPanel = new JPanel(new GridLayout(3, 2, 20, 20));
+        // Create highlighted items panel
+        JPanel highlightedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        highlightedPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        highlightedPanel.setBackground(new Color(255, 255, 255));
         
-        // Add panels to grid
-        gridPanel.add(jPanel1);
-        gridPanel.add(jPanel2);
-        gridPanel.add(jPanel3);
-        gridPanel.add(jPanel5);
-        gridPanel.add(jPanel6);
-        gridPanel.add(jPanel7);
+        // Initialize panels for highlighted items
+        initializeHighlightedPanel(jPanel1, jLabel2, jLabel3, jLabel4, jLabel5);
+        initializeHighlightedPanel(jPanel2, jLabel6, jLabel7, jLabel8, jLabel9);
         
-        centerPanel.add(gridPanel, BorderLayout.CENTER);
+        // Add panels to highlighted section
+        highlightedPanel.add(jPanel1);
+        highlightedPanel.add(jPanel2);
+        
+        centerPanel.add(highlightedPanel);
+        centerPanel.add(Box.createVerticalStrut(40));
+        
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonPanel.setBackground(new Color(255, 255, 255));
+        
+        // Create and style the buttons
+        JButton seeCollectionsBtn = new JButton("See Collections");
+        JButton suggestItemBtn = new JButton("Suggest an Item");
+        JButton displayedItemsBtn = new JButton("Displayed Items");
+        
+        // Style buttons
+        Dimension buttonSize = new Dimension(300, 60);
+        seeCollectionsBtn.setPreferredSize(buttonSize);
+        suggestItemBtn.setPreferredSize(buttonSize);
+        displayedItemsBtn.setPreferredSize(buttonSize);
+        
+        seeCollectionsBtn.setFont(new java.awt.Font("DM Sans", 1, 18));
+        suggestItemBtn.setFont(new java.awt.Font("DM Sans", 1, 18));
+        displayedItemsBtn.setFont(new java.awt.Font("DM Sans", 1, 18));
+        
+        // Set white background for buttons
+        seeCollectionsBtn.setBackground(Color.WHITE);
+        suggestItemBtn.setBackground(Color.WHITE);
+        displayedItemsBtn.setBackground(Color.WHITE);
+        
+        // Add action listeners
+        seeCollectionsBtn.addActionListener(e -> {
+            dispose();
+            new MuseumCollection().setVisible(true);
+        });
+        
+        suggestItemBtn.addActionListener(e -> {
+            dispose();
+            new SuggestionForm().setVisible(true);
+        });
+
+        displayedItemsBtn.addActionListener(e -> {
+            dispose();
+            new ItemDisplay().setVisible(true);
+        });
+        
+        buttonPanel.add(seeCollectionsBtn);
+        buttonPanel.add(suggestItemBtn);
+        buttonPanel.add(displayedItemsBtn);
+        
+        centerPanel.add(buttonPanel);
+        centerPanel.add(Box.createVerticalGlue());
+        
         mainPanel.add(centerPanel, BorderLayout.CENTER);
-        
-        // Set the main panel as content pane
         setContentPane(mainPanel);
         
-        // Add sample items
-        addSampleItems();
+        // Load highlighted items with async image loading
+        loadHighlightedItems();
+    }
+
+    private void initializeHighlightedPanel(JPanel panel, JLabel... labels) {
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.GRAY),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        panel.setPreferredSize(new Dimension(500, 300));
+        panel.setBackground(new Color(255, 255, 255));
+        
+        // Create image label with loading placeholder
+        JLabel imageLabel = new JLabel("Loading image...", SwingConstants.CENTER);
+        imageLabel.setPreferredSize(new Dimension(200, 200));
+        imageLabel.setBackground(new Color(0xF5F5F5));
+        imageLabel.setOpaque(true);
+        imageLabel.setFont(new Font("DM Sans", Font.PLAIN, 12));
+        panel.add(imageLabel, BorderLayout.WEST);
+        
+        // Create info panel
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(new Color(255, 255, 255));
+        
+        for (JLabel label : labels) {
+            label.setFont(new java.awt.Font("DM Sans", 0, 14));
+            label.setBackground(new Color(255, 255, 255));
+            infoPanel.add(label);
+            infoPanel.add(Box.createVerticalStrut(5));
+        }
+        
+        panel.add(infoPanel, BorderLayout.CENTER);
+    }
+
+    private void loadHighlightedItems() {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            String query = "SELECT i.*, s.status_desc " +
+                          "FROM item i " +
+                          "LEFT JOIN inventory inv ON i.item_id = inv.item_id " +
+                          "LEFT JOIN item_status s ON inv.item_status_id = s.item_status_id " +
+                          "WHERE i.is_exhibited = 1 " +
+                          "ORDER BY RAND() LIMIT 2";
+            
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(query);
+
+            int panelCount = 1;
+            while (rs.next() && panelCount <= 2) {
+                String itemName = rs.getString("item_name");
+                String category = rs.getString("category");
+                String status = rs.getString("status_desc");
+                String imageUrl = rs.getString("image_url");
+                String description = rs.getString("item_description");
+
+                JPanel currentPanel = (panelCount == 1) ? jPanel1 : jPanel2;
+                JLabel imageLabel = (JLabel) currentPanel.getComponent(0);
+                JPanel infoPanel = (JPanel) currentPanel.getComponent(1);
+
+                // Set text information immediately (page loads first)
+                JLabel nameLabel = (JLabel) infoPanel.getComponent(0);
+                JLabel descLabel = (JLabel) infoPanel.getComponent(2);
+                JLabel catLabel = (JLabel) infoPanel.getComponent(4);
+                JLabel statusLabel = (JLabel) infoPanel.getComponent(6);
+
+                nameLabel.setText(itemName);
+                nameLabel.setFont(new java.awt.Font("DM Sans", 1, 18));
+                descLabel.setText(description);
+                catLabel.setText("Category: " + category);
+                statusLabel.setText("Status: " + status);
+
+                // Load image asynchronously in background
+                final String finalImageUrl = imageUrl;
+                final JLabel finalImageLabel = imageLabel;
+                
+                if (finalImageUrl != null && !finalImageUrl.isEmpty()) {
+                    executorService.submit(() -> {
+                        try {
+                            ImageResizer resizer = new ImageResizer();
+                            ImageIcon icon = resizer.toCover(new URL(finalImageUrl), 200, 200);
+                            
+                            SwingUtilities.invokeLater(() -> {
+                                if (icon != null) {
+                                    finalImageLabel.setText("");
+                                    finalImageLabel.setIcon(icon);
+                                } else {
+                                    finalImageLabel.setText("No image available");
+                                }
+                                finalImageLabel.revalidate();
+                                finalImageLabel.repaint();
+                            });
+                        } catch (Exception e) {
+                            SwingUtilities.invokeLater(() -> {
+                                finalImageLabel.setText("No image available");
+                                finalImageLabel.revalidate();
+                                finalImageLabel.repaint();
+                            });
+                            System.err.println("Error loading image: " + e.getMessage());
+                        }
+                    });
+                } else {
+                    // No image URL provided
+                    imageLabel.setText("No image available");
+                }
+
+                panelCount++;
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading highlighted items: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) DatabaseConnection.closeConnection(conn);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void addSampleItems() {

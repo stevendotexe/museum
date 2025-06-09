@@ -110,6 +110,8 @@ public class RecentlyAddedCard extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel dateAdded;
+    private boolean isLoading = false;
+    private boolean hasError = false;
     // End of variables declaration
 
     public void setHeadingText(String headingText){
@@ -120,24 +122,75 @@ public class RecentlyAddedCard extends javax.swing.JPanel {
         dateAdded.setText(date);
     }
     
-    public void setSnippetImage(String url){
+    public void setImageLoading(boolean loading) {
+        this.isLoading = loading;
+        if (loading) {
+            SnippetImage.setIcon(null);
+            SnippetImage.setText("Loading image...");
+        } else if (!hasError) {
+            SnippetImage.setText("No Image");
+        }
+    }
+
+    public void setImageError(boolean error) {
+        this.hasError = error;
+        if (error) {
+            SnippetImage.setIcon(null);
+            SnippetImage.setText("Failed to load image");
+        }
+    }
+
+    public void setImage(ImageIcon icon) {
+        if (icon != null) {
+            SnippetImage.setIcon(icon);
+            SnippetImage.setText("");
+        } else {
+            SnippetImage.setIcon(null);
+            SnippetImage.setText("No Image");
+        }
+    }
+
+    public void setSnippetImage(String url) {
         final int IMAGE_WIDTH = 185;
         final int IMAGE_HEIGHT = 105;
 
-        try{
-            URL imageURL = new URL(url);
-            ImageResizer resize = new ImageResizer();
-            ImageIcon scaledIcon = resize.toCover(imageURL, IMAGE_WIDTH, IMAGE_HEIGHT);
-            SnippetImage.setIcon(scaledIcon);
-            if (SnippetImage.getParent() != null){
-                SnippetImage.getParent().revalidate();
-                SnippetImage.getParent().repaint();
-            }
-
-        } catch (MalformedURLException e){
-            System.err.println("Invalid URL");
-            e.printStackTrace();
+        if (url == null || url.trim().isEmpty()) {
+            SnippetImage.setIcon(null);
+            SnippetImage.setText("No Image");
+            return;
         }
+
+        // Set loading state
+        setImageLoading(true);
+
+        // Load image asynchronously
+        new Thread(() -> {
+            try {
+                URL imageURL = new URL(url);
+                ImageResizer resize = new ImageResizer();
+                ImageIcon scaledIcon = resize.toCover(imageURL, IMAGE_WIDTH, IMAGE_HEIGHT);
+                
+                // Update UI on EDT
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    setImage(scaledIcon);
+                    if (SnippetImage.getParent() != null) {
+                        SnippetImage.getParent().revalidate();
+                        SnippetImage.getParent().repaint();
+                    }
+                });
+            } catch (MalformedURLException e) {
+                System.err.println("Invalid URL: " + url);
+                e.printStackTrace();
+                // Update UI to show error state
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    setImageError(true);
+                    if (SnippetImage.getParent() != null) {
+                        SnippetImage.getParent().revalidate();
+                        SnippetImage.getParent().repaint();
+                    }
+                });
+            }
+        }).start();
     }
 
     public void setDescription(String descriptionText){

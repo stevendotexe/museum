@@ -5,18 +5,35 @@ import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-        
+import javax.swing.JPanel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Color;
+
 public class RegisterFrame extends javax.swing.JFrame {
 
-     public RegisterFrame() {
+    public RegisterFrame() {
         initComponents();
-        setLocationRelativeTo(null); // Center the window
+        setSize(1280, 720);
+        setLocationRelativeTo(null);
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        // Create a main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(new Color(255, 255, 255));
+
+        // Create a center panel for the form
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        centerPanel.setBackground(new Color(255, 255, 255));
 
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -30,109 +47,93 @@ public class RegisterFrame extends javax.swing.JFrame {
         btn_cancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setBackground(new Color(255, 255, 255));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18));
         jLabel1.setText("Email");
+        jLabel1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jLabel1.setBackground(new Color(255, 255, 255));
 
-        jLabel2.setFont(new java.awt.Font("Sitka Banner", 1, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Sitka Banner", 1, 24));
         jLabel2.setText("Register Museum Inventory");
+        jLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jLabel2.setBackground(new Color(255, 255, 255));
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18));
         jLabel3.setText("Password");
+        jLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jLabel3.setBackground(new Color(255, 255, 255));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 18));
         jLabel4.setText("Konfirm Password");
+        jLabel4.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jLabel4.setBackground(new Color(255, 255, 255));
 
-        txt_email.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_emailActionPerformed(evt);
-            }
-        });
+        txt_email.setMaximumSize(new Dimension(300, 30));
+        txt_email.setPreferredSize(new Dimension(300, 30));
+        txt_email.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txt_email.setBackground(Color.WHITE);
 
-        txt_password.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_passwordActionPerformed(evt);
-            }
-        });
+        txt_password.setMaximumSize(new Dimension(300, 30));
+        txt_password.setPreferredSize(new Dimension(300, 30));
+        txt_password.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txt_password.setBackground(Color.WHITE);
 
-        txt_konfirmPassword.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_konfirmPasswordActionPerformed(evt);
-            }
-        });
+        txt_konfirmPassword.setMaximumSize(new Dimension(300, 30));
+        txt_konfirmPassword.setPreferredSize(new Dimension(300, 30));
+        txt_konfirmPassword.setAlignmentX(Component.CENTER_ALIGNMENT);
+        txt_konfirmPassword.setBackground(Color.WHITE);
 
         jCshowpassword.setText("Show Password");
-        jCshowpassword.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCshowpasswordActionPerformed(evt);
-            }
-        });
+        jCshowpassword.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        btn_register.setMaximumSize(new Dimension(300, 35));
+        btn_register.setPreferredSize(new Dimension(300, 35));
         btn_register.setText("Register");
-        btn_register.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_registerActionPerformed(evt);
-            }
-        });
+        btn_register.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn_register.setBackground(Color.WHITE);
 
+        btn_cancel.setMaximumSize(new Dimension(300, 35));
+        btn_cancel.setPreferredSize(new Dimension(300, 35));
         btn_cancel.setText("Cancel");
-        btn_cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_cancelActionPerformed(evt);
-            }
-        });
+        btn_cancel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn_cancel.setBackground(Color.WHITE);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jLabel2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(67, 67, 67)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jCshowpassword)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_email, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_password, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_konfirmPassword, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn_register, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btn_cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(30, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txt_konfirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCshowpassword)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btn_register)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btn_cancel)
-                .addContainerGap(25, Short.MAX_VALUE))
-        );
+        // Add components to center panel with spacing
+        centerPanel.add(Box.createVerticalGlue());
+        centerPanel.add(jLabel2);
+        centerPanel.add(Box.createVerticalStrut(30));
+        centerPanel.add(jLabel1);
+        centerPanel.add(Box.createVerticalStrut(5));
+        centerPanel.add(txt_email);
+        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(jLabel3);
+        centerPanel.add(Box.createVerticalStrut(5));
+        centerPanel.add(txt_password);
+        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(jLabel4);
+        centerPanel.add(Box.createVerticalStrut(5));
+        centerPanel.add(txt_konfirmPassword);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(jCshowpassword);
+        centerPanel.add(Box.createVerticalStrut(20));
+        centerPanel.add(btn_register);
+        centerPanel.add(Box.createVerticalStrut(10));
+        centerPanel.add(btn_cancel);
+        centerPanel.add(Box.createVerticalGlue());
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+        // Add center panel to main panel
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        setContentPane(mainPanel);
+
+        // Add action listeners
+        txt_email.addActionListener(e -> txt_emailActionPerformed(e));
+        txt_password.addActionListener(e -> txt_passwordActionPerformed(e));
+        txt_konfirmPassword.addActionListener(e -> txt_konfirmPasswordActionPerformed(e));
+        jCshowpassword.addActionListener(e -> jCshowpasswordActionPerformed(e));
+        btn_register.addActionListener(e -> btn_registerActionPerformed(e));
+        btn_cancel.addActionListener(e -> btn_cancelActionPerformed(e));
+    }
 
     private void jCshowpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCshowpasswordActionPerformed
         // TODO add your handling code here:

@@ -12,8 +12,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
 
 public class ContainerPopulator {
+    private static final int MAX_TITLE_LENGTH = 15;
+    private static final String NO_IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVREE8a8Z-siiy_X-r0tbjb9aDvOH7CEPcuA&s";
     
     private static String getRelativeTime(String dateStr) {
         try {
@@ -45,6 +48,13 @@ public class ContainerPopulator {
         }
     }
     
+    private static String truncateText(String text, int maxLength) {
+        if (text == null || text.length() <= maxLength) {
+            return text;
+        }
+        return text.substring(0, maxLength - 3) + "...";
+    }
+    
     public static void populateRecentlyAddedContainer(RecentlyAddedContainer container, ResultSet rs) {
         try {
             List<Item> items = new ArrayList<>();
@@ -72,6 +82,13 @@ public class ContainerPopulator {
             }
             System.out.println("Total items processed: " + itemCount);
             
+            // Sort items: prioritize items with valid images
+            items.sort((a, b) -> {
+                boolean aHasValidImage = a.getImageUrl() != null && !a.getImageUrl().isEmpty() && !a.getImageUrl().equals(NO_IMAGE_URL);
+                boolean bHasValidImage = b.getImageUrl() != null && !b.getImageUrl().isEmpty() && !b.getImageUrl().equals(NO_IMAGE_URL);
+                return Boolean.compare(bHasValidImage, aHasValidImage);
+            });
+            
             JPanel cardsPanel = createCardsPanel(items, hasItems);
             container.getScrollPane().setViewportView(cardsPanel);
             container.getScrollPane().setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -96,8 +113,9 @@ public class ContainerPopulator {
         } else {
             for (Item item : items) {
                 String relativeTime = getRelativeTime(item.getDateAdded());
+                String truncatedName = truncateText(item.getName(), MAX_TITLE_LENGTH);
                 RecentlyAddedCard card = new RecentlyAddedCard(
-                    item.getName(),
+                    truncatedName,
                     item.getImageUrl(),
                     item.getDescription(),
                     relativeTime
